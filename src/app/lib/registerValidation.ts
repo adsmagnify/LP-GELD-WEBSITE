@@ -82,7 +82,7 @@ export function validateRegisterFields(fields: RegisterFields): RegisterFieldErr
     if (digits.length > REGISTER_LIMITS.MAX_PHONE_DIGITS) {
       errors.phone = "Contact number cannot have more than 10 digits.";
     } else if (digits.length < REGISTER_LIMITS.MAX_PHONE_DIGITS) {
-      errors.phone = "Enter a valid 10-digit contact number.";
+      errors.phone = "Enter a valid 10 digit contact number.";
     }
   }
 
@@ -130,7 +130,7 @@ export function validateRegisterField(
     return "Contact number cannot have more than 10 digits.";
   }
   if (digits.length > 0 && digits.length < REGISTER_LIMITS.MAX_PHONE_DIGITS) {
-    return "Enter a valid 10-digit contact number.";
+    return "Enter a valid 10 digit contact number.";
   }
   return undefined;
 }

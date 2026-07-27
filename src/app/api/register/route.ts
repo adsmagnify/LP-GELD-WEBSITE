@@ -84,7 +84,7 @@ export async function POST(request: Request) {
         from: smtpUser,
         to: recipient,
       },
-      subject: `Webinar registration — ${name}`,
+      subject: `Webinar registration, ${name}`,
       text: [
         "New webinar registration from the landing page.",
         "",

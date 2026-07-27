@@ -383,10 +383,10 @@ function AboutGeld({
             Steady advice. <span className="gold-text">Every market.</span>
           </h2>
           <p className="mt-5 text-lg text-muted-foreground">
-            GELD Wealth is a SEBI-registered investment advisory helping self-directed
+            GELD Wealth is a SEBI registered investment advisory helping self directed
             investors and traders make sharper, calmer decisions. We track every shift,
             decode every opportunity, and make sure your wealth is working in the right
-            direction — across every asset class, not just equities.
+            direction, across every asset class, not just equities.
           </p>
           <ul className="mt-6 space-y-3">
             {[
@@ -621,7 +621,7 @@ function Performance() {
               Numbers that <span className="gold-text">compound.</span>
             </>
           }
-          sub="Our managed stock portfolios have outperformed the index across every rolling 3-year window since inception."
+          sub="Our managed stock portfolios have outperformed the index across every rolling 3 year window since inception."
         />
         <div className="mt-10 sm:mt-14 grid md:grid-cols-2 gap-6 sm:gap-8 items-center">
           <div className="surface-card divide-y divide-border">
@@ -640,11 +640,11 @@ function Performance() {
           <div>
             <p className="text-lg text-muted-foreground">
               We track every shift, decode every opportunity, and make sure your wealth is
-              working in the right direction — across every asset class, not just equities.
+              working in the right direction, across every asset class, not just equities.
             </p>
             <ul className="mt-6 space-y-3">
               {[
-                "Investments across 20–25 large & multicap stocks",
+                "Investments across 20 to 25 large & multicap stocks",
                 "Managed by Pankaj Murarka, Dipen Sheth, Sunil Singhania",
                 "Portfolio tiers from ₹500/month SIPs to ₹1 Crore AIF",
               ].map((t) => (
@@ -699,7 +699,7 @@ function Testimonials() {
     {
       q: "The risk rules alone changed how I sleep at night.",
       n: "Vikram P.",
-      r: "Long-term investor, Delhi",
+      r: "Long term investor, Delhi",
     },
   ];
   return (
@@ -734,11 +734,11 @@ function FAQ() {
   const faqs = [
     {
       q: "Is the webinar really free?",
-      a: "Yes. The 60-minute masterclass is completely free — no credit card, no strings attached.",
+      a: "Yes. The 60 minute masterclass is completely free, no credit card, no strings attached.",
     },
     {
       q: "Will I get a recording?",
-      a: "Registrants get access to a limited-time recording. Attending live is strongly recommended for the Q&A.",
+      a: "Registrants get access to a limited time recording. Attending live is strongly recommended for the Q&A.",
     },
     {
       q: "Do I need trading experience?",
@@ -886,7 +886,7 @@ function FinalCTA({
               </h2>
               <p className="mt-4 sm:mt-5 text-base sm:text-lg text-muted-foreground max-w-lg">
                 Seats are limited to keep the Q&A useful. Drop your details and we&apos;ll send
-                the Zoom link along with a pre-read.
+                the Zoom link along with a pre read.
               </p>
               <div className="mt-6 sm:mt-8">
                 <Countdown {...countdown} />
@@ -996,7 +996,7 @@ function FinalCTA({
                     }
                     maxLength={REGISTER_LIMITS.MAX_PHONE_DIGITS}
                     className={errors.phone ? errorInputClass : inputClass}
-                    placeholder="10-digit mobile number"
+                    placeholder="10 digit mobile number"
                     aria-invalid={Boolean(errors.phone)}
                   />
                   {errors.phone ? (

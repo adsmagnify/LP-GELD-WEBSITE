@@ -15,7 +15,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "GELD Wealth — Weekly Wealth Masterclass Webinar",
+  title: "GELD Wealth, Weekly Wealth Masterclass Webinar",
   description:
     "Live GELD Wealth webinar covering Derivatives & Trading, Portfolio Review, Asset Allocation, and Retirement Planning. Educational only.",
   icons: {

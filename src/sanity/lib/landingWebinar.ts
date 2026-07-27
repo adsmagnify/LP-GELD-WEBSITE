@@ -8,26 +8,26 @@ export const DEFAULT_LANDING_WEBINAR: LandingWebinarContent = {
   heroHeadline: "Weekly Wealth",
   heroHighlight: "Masterclass.",
   heroSubtitle:
-    "A live session covering derivatives & trading, portfolio review, asset allocation, and retirement planning — practical frameworks, no product pitches.",
+    "A live session covering derivatives & trading, portfolio review, asset allocation, and retirement planning, practical frameworks, no product pitches.",
   posterUrl: "/webinar_poster_2.png",
-  posterAlt: "GELD Wealth webinar poster — Ask The Expert, Trade Smarter",
+  posterAlt: "GELD Wealth webinar poster, Ask The Expert, Trade Smarter",
   eventDateTime: "",
   eventMeta: "7:00 PM IST · Live on Zoom",
   registerUrl:
     "https://us06web.zoom.us/meeting/register/c_aXknaCTjKhfQDFje_WhQ#/registration",
   topicsIntro:
-    "Four focused topics in one educational webinar — practical frameworks, no complicated jargon, no product pitches.",
+    "Four focused topics in one educational webinar, practical frameworks, no complicated jargon, no product pitches.",
   topics: [
     {
       title: "Derivatives & Trading Masterclass",
-      theme: "How professional traders think — not stock tips.",
+      theme: "How professional traders think, not stock tips.",
       audience:
         "Traders with 6+ months experience who aren't consistently profitable.",
       points: [
         "How professional traders think",
         "Position sizing",
         "Current option strategies that are working",
-        "Trading psychology & decision-making",
+        "Trading psychology & decision making",
         "Real market insights",
       ],
       icon: "lineChart",
@@ -40,7 +40,7 @@ export const DEFAULT_LANDING_WEBINAR: LandingWebinarContent = {
       points: [
         "How many mutual funds you actually need",
         "How to identify performing funds",
-        "How to pick growth-oriented stocks",
+        "How to pick growth oriented stocks",
         "Portfolio stability in current markets",
         "Creating a proper investment plan",
       ],
@@ -50,7 +50,7 @@ export const DEFAULT_LANDING_WEBINAR: LandingWebinarContent = {
       title: "Wealth Creation & Asset Allocation",
       theme: "Making your money work as hard as you do.",
       audience:
-        "Doctors, lawyers, business owners, senior executives & high-income professionals.",
+        "Doctors, lawyers, business owners, senior executives & high income professionals.",
       points: [
         "Asset allocation based on goals",
         "Portfolio gaps professionals often miss",
@@ -62,13 +62,13 @@ export const DEFAULT_LANDING_WEBINAR: LandingWebinarContent = {
     },
     {
       title: "Retirement Planning",
-      theme: "Building a retirement plan with confidence — not guesswork.",
+      theme: "Building a retirement plan with confidence, not guesswork.",
       audience: "Professionals, business owners, and anyone planning for retirement.",
       points: [
         "How much retirement corpus is enough",
         "Where your money should be invested",
         "Safe monthly withdrawal strategy",
-        "Managing inflation over 20–30 years",
+        "Managing inflation over 20 to 30 years",
         "Creating financial freedom",
       ],
       icon: "piggyBank",
@@ -77,7 +77,7 @@ export const DEFAULT_LANDING_WEBINAR: LandingWebinarContent = {
   speaker: {
     name: "Chandan Taparia",
     role: "Featured speaker",
-    bio: "India's leading derivatives expert — frequently seen on major news channels. In the derivatives & trading topic, he covers how professional traders think, position sizing, working option strategies, and trading psychology — not stock tips.",
+    bio: "India's leading derivatives expert, frequently seen on major news channels. In the derivatives & trading topic, he covers how professional traders think, position sizing, working option strategies, and trading psychology, not stock tips.",
     quote: "Markets never stand still. Neither should your process.",
     imageUrl: "/speaker-chandan.jpg",
     imageAlt: "Chandan Taparia, lead speaker",
@@ -103,7 +103,16 @@ export const DEFAULT_LANDING_WEBINAR: LandingWebinarContent = {
   ],
 };
 
-function nextSaturdayAt1900IST(): string {
+function stripDashes(value: string): string {
+  return value
+    .replace(/\u2014/g, ",") // em dash —
+    .replace(/\u2013/g, " to ") // en dash –
+    .replace(/\s+,/g, ",")
+    .replace(/,\s*,/g, ",")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
   const d = new Date();
   const day = d.getDay();
   const daysToSat = (6 - day + 7) % 7 || 7;
