@@ -105,14 +105,15 @@ export const DEFAULT_LANDING_WEBINAR: LandingWebinarContent = {
 
 function stripDashes(value: string): string {
   return value
-    .replace(/\u2014/g, ",") // em dash —
-    .replace(/\u2013/g, " to ") // en dash –
+    .replace(/\u2014/g, ",") // em dash
+    .replace(/\u2013/g, " to ") // en dash
     .replace(/\s+,/g, ",")
     .replace(/,\s*,/g, ",")
     .replace(/\s{2,}/g, " ")
     .trim();
 }
 
+function nextSaturdayAt1900IST(): string {
   const d = new Date();
   const day = d.getDay();
   const daysToSat = (6 - day + 7) % 7 || 7;
@@ -147,46 +148,49 @@ function mapDoc(doc: LandingWebinarDoc | null): LandingWebinarContent {
     doc.topics
       ?.filter((t) => t?.title)
       .map((t) => ({
-        title: t.title!,
-        theme: t.theme ?? undefined,
-        audience: t.audience ?? undefined,
-        points: (t.points ?? []).filter(Boolean) as string[],
+        title: stripDashes(t.title!),
+        theme: t.theme ? stripDashes(t.theme) : undefined,
+        audience: t.audience ? stripDashes(t.audience) : undefined,
+        points: ((t.points ?? []).filter(Boolean) as string[]).map(stripDashes),
         icon: t.icon ?? undefined,
       })) ?? base.topics;
 
   const stats =
     doc.speaker?.stats
       ?.filter((s) => s?.label && s?.value)
-      .map((s) => ({ label: s.label!, value: s.value! })) ?? base.speaker.stats;
+      .map((s) => ({
+        label: stripDashes(s.label!),
+        value: stripDashes(s.value!),
+      })) ?? base.speaker.stats;
 
   return {
-    heroEyebrow: doc.heroEyebrow?.trim() || base.heroEyebrow,
-    heroHeadline: doc.heroHeadline?.trim() || base.heroHeadline,
-    heroHighlight: doc.heroHighlight?.trim() || base.heroHighlight,
-    heroSubtitle: doc.heroSubtitle?.trim() || base.heroSubtitle,
+    heroEyebrow: stripDashes(doc.heroEyebrow?.trim() || base.heroEyebrow),
+    heroHeadline: stripDashes(doc.heroHeadline?.trim() || base.heroHeadline),
+    heroHighlight: stripDashes(doc.heroHighlight?.trim() || base.heroHighlight),
+    heroSubtitle: stripDashes(doc.heroSubtitle?.trim() || base.heroSubtitle),
     posterUrl,
-    posterAlt: doc.poster?.alt?.trim() || base.posterAlt,
+    posterAlt: stripDashes(doc.poster?.alt?.trim() || base.posterAlt),
     eventDateTime: doc.eventDateTime || nextSaturdayAt1900IST(),
-    eventMeta: doc.eventMeta?.trim() || base.eventMeta,
+    eventMeta: stripDashes(doc.eventMeta?.trim() || base.eventMeta),
     registerUrl: doc.registerUrl?.trim() || base.registerUrl,
-    topicsIntro: doc.topicsIntro?.trim() || base.topicsIntro,
+    topicsIntro: stripDashes(doc.topicsIntro?.trim() || base.topicsIntro),
     topics: topics.length ? topics : base.topics,
     speaker: {
-      name: doc.speaker?.name?.trim() || base.speaker.name,
-      role: doc.speaker?.role?.trim() || base.speaker.role,
-      bio: doc.speaker?.bio?.trim() || base.speaker.bio,
-      quote: doc.speaker?.quote?.trim() || base.speaker.quote,
+      name: stripDashes(doc.speaker?.name?.trim() || base.speaker.name),
+      role: stripDashes(doc.speaker?.role?.trim() || base.speaker.role || ""),
+      bio: stripDashes(doc.speaker?.bio?.trim() || base.speaker.bio || ""),
+      quote: stripDashes(doc.speaker?.quote?.trim() || base.speaker.quote || ""),
       imageUrl: speakerImageUrl,
-      imageAlt: doc.speaker?.image?.alt?.trim() || base.speaker.imageAlt,
+      imageAlt: stripDashes(doc.speaker?.image?.alt?.trim() || base.speaker.imageAlt),
       stats: stats.length ? stats : base.speaker.stats,
     },
     marqueeItems:
       doc.marqueeItems?.filter(Boolean).length
-        ? (doc.marqueeItems.filter(Boolean) as string[])
+        ? (doc.marqueeItems.filter(Boolean) as string[]).map(stripDashes)
         : base.marqueeItems,
     audienceItems:
       doc.audienceItems?.filter(Boolean).length
-        ? (doc.audienceItems.filter(Boolean) as string[])
+        ? (doc.audienceItems.filter(Boolean) as string[]).map(stripDashes)
         : base.audienceItems,
   };
 }
