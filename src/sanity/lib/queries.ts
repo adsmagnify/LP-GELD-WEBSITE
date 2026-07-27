@@ -1,0 +1,38 @@
+export const LANDING_WEBINAR_QUERY = `*[_id == "landingWebinar"][0]{
+  heroEyebrow,
+  heroHeadline,
+  heroHighlight,
+  heroSubtitle,
+  poster{
+    asset->,
+    alt,
+    hotspot,
+    crop
+  },
+  eventDateTime,
+  eventMeta,
+  registerUrl,
+  topicsIntro,
+  topics[]{
+    title,
+    theme,
+    audience,
+    points,
+    icon
+  },
+  speaker{
+    name,
+    role,
+    bio,
+    quote,
+    image{
+      asset->,
+      alt,
+      hotspot,
+      crop
+    },
+    stats[]{ label, value }
+  },
+  marqueeItems,
+  audienceItems
+}`;

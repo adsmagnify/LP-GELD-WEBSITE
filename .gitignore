@@ -1,0 +1,11 @@
+# GELD Webinar Landing Page
+node_modules
+.next
+out
+.env*
+!.env.example
+npm-debug.log*
+.DS_Store
+*.pem
+
+.env.local

@@ -1,0 +1,259 @@
+@import "tailwindcss";
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.75rem;
+  /* Match geldwealth.com: true black + brand gold (not navy) */
+  --background: #030303;
+  --foreground: #ffffff;
+  --surface: #0a0a0a;
+  --surface-elevated: #121212;
+  --card: #0a0a0a;
+  --card-foreground: #ffffff;
+  --primary: #ce953a;
+  --primary-foreground: #02040b;
+  --secondary: #121212;
+  --secondary-foreground: #ffffff;
+  --muted: #121212;
+  --muted-foreground: rgba(255, 255, 255, 0.65);
+  --accent: #ce953a;
+  --accent-foreground: #02040b;
+  --border: #2a2a2a;
+  --gold: #ce953a;
+  --gold-soft: #9c7924;
+  --gold-hover: #fefe7b;
+  --gold-glow: #fefe7b40;
+
+  --gradient-hero: radial-gradient(
+      1200px 600px at 80% -10%,
+      color-mix(in srgb, var(--gold) 22%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at 0% 30%,
+      color-mix(in srgb, var(--gold) 10%, transparent),
+      transparent 60%
+    ),
+    linear-gradient(180deg, var(--background), #000000);
+  --gradient-gold: linear-gradient(135deg, var(--gold-hover), var(--gold), var(--gold-soft));
+  --shadow-gold: 0 20px 60px -20px color-mix(in srgb, var(--gold) 45%, transparent);
+  --shadow-panel: 0 40px 80px -40px rgb(0 0 0 / 0.75);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+    box-sizing: border-box;
+  }
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+  }
+  @media (min-width: 768px) {
+    html {
+      scroll-padding-top: 6.5rem;
+    }
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  button,
+  input {
+    font: inherit;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+  ul {
+    list-style: none;
+  }
+}
+
+@utility container-x {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  @media (min-width: 640px) {
+    padding-inline: 1.25rem;
+  }
+}
+
+@utility btn-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--gradient-gold);
+  color: var(--primary-foreground);
+  font-weight: 600;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  box-shadow: var(--shadow-gold);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+  @media (min-width: 640px) {
+    padding: 0.9rem 1.6rem;
+  }
+  &:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.08);
+    box-shadow: 0 26px 70px -18px color-mix(in srgb, var(--gold) 60%, transparent);
+  }
+}
+
+@utility btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
+  color: var(--foreground);
+  font-weight: 500;
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  @media (min-width: 640px) {
+    padding: 0.9rem 1.6rem;
+  }
+  &:hover {
+    background: color-mix(in srgb, var(--gold) 10%, transparent);
+    border-color: var(--gold);
+    color: var(--gold-hover);
+  }
+}
+
+@utility gold-text {
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility hairline {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--gold) 45%, transparent),
+    transparent
+  );
+}
+
+@utility surface-card {
+  background: linear-gradient(180deg, var(--surface-elevated), var(--surface));
+  border: 1px solid color-mix(in srgb, var(--gold) 18%, var(--border));
+  border-radius: 1rem;
+  box-shadow: var(--shadow-panel);
+}
+
+@utility font-display {
+  font-family: var(--font-display);
+}
+
+/* Match GELD-WEBSITE header logo lockup (G coin + ELD WEALTH) */
+.geld-logo {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.geld-logo-g {
+  height: 45px;
+  width: auto;
+  display: inline-block;
+  transform-style: preserve-3d;
+  margin-right: -3px;
+  margin-top: -10px;
+  animation: geld-logo-spin 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.5s;
+}
+
+.geld-logo-text {
+  height: 38px;
+  width: auto;
+  opacity: 0.95;
+  transition: opacity 0.2s ease;
+}
+
+.geld-logo:hover .geld-logo-g {
+  animation: geld-logo-spin 1.2s linear infinite;
+}
+
+.geld-logo:hover .geld-logo-text {
+  opacity: 1;
+}
+
+@keyframes geld-logo-spin {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .geld-logo-g {
+    height: 32px;
+    margin-top: -4px;
+    margin-right: -2px;
+  }
+
+  .geld-logo-text {
+    height: 26px;
+  }
+}
+
+@media (max-width: 500px) {
+  .geld-logo-g {
+    height: 28px;
+  }
+
+  .geld-logo-text {
+    height: 22px;
+  }
+}
+
