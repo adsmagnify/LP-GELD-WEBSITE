@@ -157,7 +157,7 @@ export default function Header({ registerUrl }: { registerUrl: string }) {
             rel="noopener noreferrer"
             className={styles.contactBtn}
           >
-            Reserve
+            Reserve your seat
           </a>
 
           <button
@@ -200,7 +200,7 @@ export default function Header({ registerUrl }: { registerUrl: string }) {
               className={`${styles.mobileNavLink} ${styles.mobileContactLink}`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Reserve
+              Reserve your seat
             </a>
           </nav>
         </div>
