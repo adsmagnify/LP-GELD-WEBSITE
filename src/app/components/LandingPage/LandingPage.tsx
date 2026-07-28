@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ComponentType, type FormEvent, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   BarChart3,
@@ -8,12 +9,10 @@ import {
   CalendarClock,
   CheckCircle2,
   LineChart,
-  Menu,
   PiggyBank,
   Shield,
   Sparkles,
   Users,
-  X,
 } from "lucide-react";
 import type { LandingTopic, LandingWebinarContent } from "@/sanity/lib/types";
 import {
@@ -25,6 +24,7 @@ import {
   type RegisterFieldErrors,
   type RegisterFieldKey,
 } from "@/app/lib/registerValidation";
+import Header, { scrollToHash } from "@/app/components/Header/Header";
 
 const LOGO_MARK_SRC = "/new_geld_g_logo.png";
 const LOGO_WORDMARK_SRC = "/new_geld_eld_logo.png";
@@ -37,30 +37,6 @@ const TOPIC_ICONS: Record<string, ComponentType<{ className?: string }>> = {
   shield: Shield,
   users: Users,
 };
-
-const nav = [
-  { label: "Webinar", href: "#about" },
-  { label: "What you'll learn", href: "#learn" },
-  { label: "Speaker", href: "#speaker" },
-  { label: "Performance", href: "#performance" },
-  { label: "FAQ", href: "#faq" },
-];
-
-function getHeaderOffset(): number {
-  if (typeof document === "undefined") return 88;
-  const bar = document.querySelector<HTMLElement>("[data-header-bar]");
-  // Extra breathing room so section titles sit clearly below the sticky nav.
-  return (bar?.offsetHeight ?? 64) + 32;
-}
-
-function scrollToHash(hash: string) {
-  const id = hash.replace(/^#/, "");
-  if (!id) return;
-  const el = document.getElementById(id);
-  if (!el) return;
-  const y = el.getBoundingClientRect().top + window.pageYOffset - getHeaderOffset();
-  window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
-}
 
 function NavLink({
   href,
@@ -129,7 +105,7 @@ export default function LandingPage({ data }: { data: LandingWebinarContent }) {
       <AboutGeld registerUrl={data.registerUrl} topicCount={data.topics.length} />
       <Marquee items={data.marqueeItems} />
       <Learn topics={data.topics} intro={data.topicsIntro} />
-      <Speaker speaker={data.speaker} />
+      <Speaker speakers={data.speakers} />
       <Performance />
       <ForWho items={data.audienceItems} />
       <Testimonials />
@@ -137,111 +113,6 @@ export default function LandingPage({ data }: { data: LandingWebinarContent }) {
       <FinalCTA countdown={countdown} registerUrl={data.registerUrl} />
       <Footer />
     </div>
-  );
-}
-
-function Header({ registerUrl }: { registerUrl: string }) {
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open]);
-
-  return (
-    <header
-      data-site-header
-      className="sticky top-0 z-50 backdrop-blur-md bg-background/95 border-b border-border/60"
-    >
-      <div
-        data-header-bar
-        className="container-x flex items-center justify-between gap-3 h-14 md:h-16"
-      >
-        <NavLink href="#top" className="geld-logo" onNavigate={() => setOpen(false)}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={LOGO_MARK_SRC}
-            alt=""
-            width={45}
-            height={45}
-            className="geld-logo-g"
-          />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={LOGO_WORDMARK_SRC}
-            alt="GELD Wealth"
-            width={140}
-            height={38}
-            className="geld-logo-text"
-          />
-        </NavLink>
-
-        <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-sm text-muted-foreground">
-          {nav.map((n) => (
-            <NavLink
-              key={n.href}
-              href={n.href}
-              className="hover:text-foreground transition-colors whitespace-nowrap"
-            >
-              {n.label}
-            </NavLink>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-2 shrink-0">
-          <a
-            href={registerUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-gold text-xs sm:text-sm !py-2 !px-3 sm:!px-4"
-          >
-            Reserve
-            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-          </a>
-          <button
-            type="button"
-            className="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg border border-border text-foreground"
-            aria-expanded={open}
-            aria-controls="mobile-nav"
-            aria-label={open ? "Close menu" : "Open menu"}
-            onClick={() => setOpen((v) => !v)}
-          >
-            {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-        </div>
-      </div>
-
-      {open ? (
-        <div
-          id="mobile-nav"
-          className="lg:hidden border-t border-border/60 bg-background/95 backdrop-blur-md"
-        >
-          <nav className="container-x py-4 flex flex-col gap-1">
-            {nav.map((n) => (
-              <NavLink
-                key={n.href}
-                href={n.href}
-                onNavigate={() => setOpen(false)}
-                className="rounded-lg px-3 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors"
-              >
-                {n.label}
-              </NavLink>
-            ))}
-            <a
-              href={registerUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-gold mt-3 w-full"
-              onClick={() => setOpen(false)}
-            >
-              Reserve seat <ArrowRight className="w-4 h-4" />
-            </a>
-          </nav>
-        </div>
-      ) : null}
-    </header>
   );
 }
 
@@ -282,11 +153,43 @@ function Hero({
 }) {
   return (
     <section className="relative overflow-hidden">
-      <div id="top" className="container-x pt-10 sm:pt-14 md:pt-20 pb-14 sm:pb-20 md:pb-24">
+      <div id="top" className="container-x pt-28 sm:pt-32 md:pt-36 pb-14 sm:pb-20 md:pb-24">
         <div className="mx-auto max-w-3xl text-center flex flex-col items-center">
-          <div className="inline-flex items-center gap-2 text-[10px] sm:text-xs uppercase tracking-[0.16em] sm:tracking-[0.2em] text-muted-foreground border border-border rounded-full px-3 py-1.5 max-w-full text-balance">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--gold)] animate-pulse shrink-0" />
-            <span className="truncate">{data.heroEyebrow}</span>
+          <div className="flex flex-col items-center gap-2.5 max-w-full px-2">
+            {(() => {
+              const parts = data.heroEyebrow
+                .split(/\s*[·•|]\s*/)
+                .map((p) => p.trim())
+                .filter(Boolean);
+              const primary = parts[0] || "Live weekly webinars";
+              const secondary = parts[1] || "37+ years market experience";
+              return (
+                <>
+                  <p className="text-[11px] sm:text-xs uppercase tracking-[0.28em] text-[var(--gold)] font-medium">
+                    {primary}
+                  </p>
+                  <div className="flex items-center gap-3 w-full max-w-sm">
+                    <span
+                      className="flex-1 h-px"
+                      style={{
+                        background:
+                          "linear-gradient(90deg, transparent, color-mix(in srgb, var(--gold) 45%, transparent))",
+                      }}
+                    />
+                    <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.18em] text-muted-foreground whitespace-nowrap">
+                      {secondary}
+                    </span>
+                    <span
+                      className="flex-1 h-px"
+                      style={{
+                        background:
+                          "linear-gradient(270deg, transparent, color-mix(in srgb, var(--gold) 45%, transparent))",
+                      }}
+                    />
+                  </div>
+                </>
+              );
+            })()}
           </div>
 
           <h1 className="mt-5 sm:mt-6 font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.05] font-semibold px-1">
@@ -355,10 +258,10 @@ function Hero({
               <Users className="w-4 h-4 text-[var(--gold)]" /> 12,400+ attendees
             </div>
             <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-[var(--gold)]" /> SEBI RIA
+              <Sparkles className="w-4 h-4 text-[var(--gold)]" /> 37+ years experience
             </div>
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[var(--gold)]" /> 100% free
+              <Shield className="w-4 h-4 text-[var(--gold)]" /> 100% free
             </div>
           </div>
         </div>
@@ -383,15 +286,15 @@ function AboutGeld({
             Steady advice. <span className="gold-text">Every market.</span>
           </h2>
           <p className="mt-5 text-lg text-muted-foreground">
-            GELD Wealth is a SEBI registered investment advisory helping self directed
-            investors and traders make sharper, calmer decisions. We track every shift,
-            decode every opportunity, and make sure your wealth is working in the right
-            direction, across every asset class, not just equities.
+            GELD Wealth helps self directed investors and traders make sharper, calmer
+            decisions, with 37+ years of market experience behind every session. We track
+            every shift, decode every opportunity, and make sure your wealth is working in
+            the right direction, across every asset class, not just equities.
           </p>
           <ul className="mt-6 space-y-3">
             {[
-              "SEBI Registered Investment Advisor",
-              "20+ years of markets experience",
+              "37+ years of market experience",
+              "Educational webinars with actionable frameworks",
               "Managed portfolios, F&O strategies & SIPs",
             ].map((t) => (
               <li key={t} className="flex gap-3 text-sm">
@@ -432,7 +335,7 @@ function AboutGeld({
               <div>
                 <div className="font-semibold">Actionable</div>
                 <div className="text-muted-foreground">
-                  {topicCount} clear topics, no pitches
+                  {topicCount} clear webinars, no pitches
                 </div>
               </div>
             </div>
@@ -492,22 +395,22 @@ function Learn({ topics, intro }: { topics: LandingTopic[]; intro: string }) {
     <section className="py-14 sm:py-24 md:py-32">
       <div id="learn" className="container-x scroll-mt-24 md:scroll-mt-28">
         <SectionHead
-          kicker="Topics covered"
+          kicker="Our webinars"
           title={
             <>
-              What we&apos;ll <span className="gold-text">cover.</span>
+              Choose your <span className="gold-text">webinar.</span>
             </>
           }
           sub={intro}
         />
-        <div className="mt-10 sm:mt-14 grid md:grid-cols-2 gap-4 sm:gap-6">
+        <div className="mt-10 sm:mt-14 grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-stretch">
           {topics.map((it, index) => {
             const n = String(index + 1).padStart(2, "0");
             const Icon = TOPIC_ICONS[it.icon ?? ""] ?? LineChart;
             return (
               <article
                 key={`${n}-${it.title}`}
-                className="surface-card p-5 sm:p-7 md:p-8 hover:-translate-y-1 transition-transform"
+                className="surface-card p-5 sm:p-7 md:p-8 flex flex-col h-full relative overflow-hidden"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div
@@ -521,9 +424,16 @@ function Learn({ topics, intro }: { topics: LandingTopic[]; intro: string }) {
                   </span>
                 </div>
                 <div className="mt-5 text-xs uppercase tracking-[0.2em] text-[var(--gold)]">
-                  Topic {index + 1}
+                  Webinar {index + 1}
                 </div>
                 <h3 className="mt-2 text-xl md:text-2xl font-semibold leading-snug">{it.title}</h3>
+                <p className="mt-3 text-sm">
+                  <span className="text-muted-foreground">Speaker: </span>
+                  <span className="text-[var(--gold)] font-medium">
+                    {it.speaker ||
+                      (/derivatives/i.test(it.title) ? "Chandan Taparia" : "Anil Jha")}
+                  </span>
+                </p>
                 {it.theme ? (
                   <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{it.theme}</p>
                 ) : null}
@@ -543,6 +453,9 @@ function Learn({ topics, intro }: { topics: LandingTopic[]; intro: string }) {
                     ))}
                   </ul>
                 ) : null}
+                <div className="mt-auto pt-6">
+                  <TopicInterestForm topic={it.title} formId={`topic-${n}`} />
+                </div>
               </article>
             );
           })}
@@ -552,53 +465,357 @@ function Learn({ topics, intro }: { topics: LandingTopic[]; intro: string }) {
   );
 }
 
-function Speaker({ speaker }: { speaker: LandingWebinarContent["speaker"] }) {
+function TopicInterestForm({ topic, formId }: { topic: string; formId: string }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [errors, setErrors] = useState<RegisterFieldErrors>({});
+  const [formError, setFormError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const inputClass =
+    "mt-1.5 w-full bg-transparent border border-border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--gold)]";
+  const errorInputClass = `${inputClass} border-red-500/70 focus:border-red-400`;
+
+  function setField(
+    field: RegisterFieldKey,
+    value: string,
+    setter: (v: string) => void
+  ) {
+    setter(value);
+    setFormError("");
+    const msg = validateRegisterField(field, value);
+    setErrors((prev) => {
+      const next = { ...prev };
+      if (msg) next[field] = msg;
+      else delete next[field];
+      return next;
+    });
+  }
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    setFormError("");
+    const fieldErrors = validateRegisterFields({ name, email, phone });
+    setErrors(fieldErrors);
+    if (Object.keys(fieldErrors).length > 0) {
+      setFormError(firstRegisterError(fieldErrors));
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          interestedTopic: topic,
+        }),
+      });
+      const data = (await res.json().catch(() => null)) as {
+        error?: string;
+        fieldErrors?: RegisterFieldErrors;
+      } | null;
+
+      if (!res.ok) {
+        if (data?.fieldErrors) setErrors(data.fieldErrors);
+        setFormError(data?.error || "Failed to send. Please try again.");
+        return;
+      }
+
+      router.push(`/thank-you?topic=${encodeURIComponent(topic)}`);
+    } catch {
+      setFormError("Network error. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="btn-gold w-full text-sm !py-2.5"
+      >
+        I&apos;m interested <ArrowRight className="w-4 h-4" />
+      </button>
+    );
+  }
+
+  return (
+    <>
+      <button type="button" className="btn-gold w-full text-sm !py-2.5 invisible" tabIndex={-1} aria-hidden>
+        I&apos;m interested <ArrowRight className="w-4 h-4" />
+      </button>
+      <form
+        onSubmit={onSubmit}
+        className="absolute inset-0 z-20 flex flex-col justify-center gap-3 p-5 sm:p-7 overflow-y-auto"
+        style={{
+          background: "linear-gradient(180deg, var(--surface-elevated), var(--surface))",
+        }}
+        noValidate
+      >
+        <p className="text-xs text-muted-foreground">
+          Show interest in <span className="text-[var(--gold)] font-medium">{topic}</span>
+        </p>
+
+        <div>
+          <label
+            htmlFor={`${formId}-name`}
+            className="block text-[10px] uppercase tracking-widest text-muted-foreground"
+          >
+            Full name
+          </label>
+          <input
+            id={`${formId}-name`}
+            name="name"
+            autoComplete="name"
+            value={name}
+            onChange={(e) => setField("name", e.target.value, setName)}
+            maxLength={REGISTER_LIMITS.MAX_NAME}
+            className={errors.name ? errorInputClass : inputClass}
+            placeholder="Your name"
+            aria-invalid={Boolean(errors.name)}
+          />
+          {errors.name ? <p className="mt-1 text-xs text-red-400">{errors.name}</p> : null}
+        </div>
+
+        <div>
+          <label
+            htmlFor={`${formId}-email`}
+            className="block text-[10px] uppercase tracking-widest text-muted-foreground"
+          >
+            Email
+          </label>
+          <input
+            id={`${formId}-email`}
+            name="email"
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setField("email", e.target.value, setEmail)}
+            maxLength={REGISTER_LIMITS.MAX_EMAIL}
+            className={errors.email ? errorInputClass : inputClass}
+            placeholder="you@example.com"
+            aria-invalid={Boolean(errors.email)}
+          />
+          {errors.email ? <p className="mt-1 text-xs text-red-400">{errors.email}</p> : null}
+        </div>
+
+        <div>
+          <label
+            htmlFor={`${formId}-phone`}
+            className="block text-[10px] uppercase tracking-widest text-muted-foreground"
+          >
+            Contact number
+          </label>
+          <input
+            id={`${formId}-phone`}
+            name="phone"
+            type="tel"
+            inputMode="numeric"
+            autoComplete="tel"
+            value={phone}
+            onChange={(e) => {
+              const digits = getPhoneDigits(e.target.value).slice(
+                0,
+                REGISTER_LIMITS.MAX_PHONE_DIGITS
+              );
+              setField("phone", digits, setPhone);
+            }}
+            maxLength={REGISTER_LIMITS.MAX_PHONE_DIGITS}
+            className={errors.phone ? errorInputClass : inputClass}
+            placeholder="10 digit mobile number"
+            aria-invalid={Boolean(errors.phone)}
+          />
+          {errors.phone ? <p className="mt-1 text-xs text-red-400">{errors.phone}</p> : null}
+        </div>
+
+        {formError ? <p className="text-xs text-red-400 text-center">{formError}</p> : null}
+
+        <button
+          type="submit"
+          disabled={submitting}
+          className="btn-gold w-full text-sm !py-2.5 disabled:opacity-60 disabled:pointer-events-none"
+        >
+          {submitting ? "Sending…" : "Submit interest"}{" "}
+          {!submitting ? <ArrowRight className="w-4 h-4" /> : null}
+        </button>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="w-full text-xs text-muted-foreground hover:text-[var(--gold)] py-1"
+        >
+          Cancel
+        </button>
+      </form>
+    </>
+  );
+}
+
+function Speaker({ speakers }: { speakers: LandingWebinarContent["speakers"] }) {
+  const list = speakers.length ? speakers : [];
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const count = list.length;
+
+  useEffect(() => {
+    if (count <= 1 || paused) return;
+    const id = window.setInterval(() => {
+      setActive((i) => (i + 1) % count);
+    }, 3500);
+    return () => window.clearInterval(id);
+  }, [count, paused]);
+
+  if (!count) return null;
+
+  const current = list[active] ?? list[0];
+
+  function initials(name: string) {
+    return name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase() ?? "")
+      .join("");
+  }
+
   return (
     <section className="py-14 sm:py-24 md:py-32 border-t border-border/60">
-      <div id="speaker" className="container-x grid lg:grid-cols-[1fr_1.2fr] gap-10 lg:gap-14 items-center scroll-mt-24 md:scroll-mt-28">
-        <div className="relative max-w-md mx-auto lg:max-w-none lg:mx-0 w-full">
-          <div
-            className="absolute -inset-4 sm:-inset-6 rounded-3xl opacity-30 blur-3xl"
-            style={{ background: "var(--gradient-gold)" }}
-          />
-          <div className="relative surface-card overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={speaker.imageUrl}
-              alt={speaker.imageAlt}
-              width={900}
-              height={1100}
-              loading="lazy"
-              className="w-full h-auto"
-            />
-          </div>
-        </div>
-        <div>
+      <div
+        id="speaker"
+        className="container-x scroll-mt-24 md:scroll-mt-28"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+      >
+        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
           <div className="text-xs uppercase tracking-[0.2em] text-[var(--gold)]">
-            {speaker.role || "Featured speaker"}
+            Featured speakers
           </div>
           <h2 className="mt-3 font-display text-3xl sm:text-4xl md:text-5xl font-semibold leading-tight">
-            Meet <span className="gold-text">{speaker.name}</span>
+            Learn from <span className="gold-text">practitioners.</span>
           </h2>
-          {speaker.bio ? (
-            <p className="mt-5 text-base sm:text-lg text-muted-foreground">{speaker.bio}</p>
-          ) : null}
-          {speaker.stats.length > 0 ? (
-            <div className="mt-8 grid grid-cols-3 gap-3 sm:gap-6">
-              {speaker.stats.map((s) => (
-                <Stat key={s.label} label={s.label} value={s.value} />
-              ))}
-            </div>
-          ) : null}
-          {speaker.quote ? (
-            <>
-              <div className="mt-8 hairline" />
-              <blockquote className="mt-8 font-display text-2xl leading-snug">
-                &ldquo;{speaker.quote}&rdquo;
-              </blockquote>
-            </>
-          ) : null}
         </div>
+
+        <div className="grid lg:grid-cols-[1fr_1.2fr] gap-10 lg:gap-14 items-center">
+          <div className="relative max-w-md mx-auto lg:max-w-none lg:mx-0 w-full">
+            <div
+              className="absolute -inset-4 sm:-inset-6 rounded-3xl opacity-30 blur-3xl"
+              style={{ background: "var(--gradient-gold)" }}
+            />
+            <div className="relative surface-card overflow-hidden aspect-[4/5]">
+              {list.map((speaker, index) => {
+                const isActive = index === active;
+                return (
+                  <div
+                    key={`photo-${speaker.name}-${index}`}
+                    className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                      isActive ? "opacity-100" : "opacity-0"
+                    }`}
+                    aria-hidden={!isActive}
+                  >
+                    {speaker.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={speaker.imageUrl}
+                        alt={speaker.imageAlt}
+                        width={900}
+                        height={1100}
+                        loading={index === 0 ? "eager" : "lazy"}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div
+                        className="w-full h-full grid place-items-center"
+                        style={{
+                          background:
+                            "linear-gradient(160deg, color-mix(in srgb, var(--gold) 25%, #111), #0a0a0a)",
+                        }}
+                      >
+                        <span className="font-display text-6xl sm:text-7xl gold-text font-semibold">
+                          {initials(speaker.name)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="relative min-h-[280px] sm:min-h-[320px]">
+            {list.map((speaker, index) => {
+              const isActive = index === active;
+              return (
+                <div
+                  key={`copy-${speaker.name}-${index}`}
+                  className={`transition-opacity duration-700 ease-in-out ${
+                    isActive
+                      ? "opacity-100 relative"
+                      : "opacity-0 absolute inset-0 pointer-events-none"
+                  }`}
+                  aria-hidden={!isActive}
+                >
+                  <div className="text-xs uppercase tracking-[0.2em] text-[var(--gold)]">
+                    {speaker.role || "Featured speaker"}
+                  </div>
+                  <h3 className="mt-3 font-display text-3xl sm:text-4xl md:text-5xl font-semibold leading-tight">
+                    Meet <span className="gold-text">{speaker.name}</span>
+                  </h3>
+                  {speaker.bio ? (
+                    <p className="mt-5 text-base sm:text-lg text-muted-foreground">
+                      {speaker.bio}
+                    </p>
+                  ) : null}
+                  {speaker.stats.length > 0 ? (
+                    <div className="mt-8 grid grid-cols-3 gap-3 sm:gap-6">
+                      {speaker.stats.map((s) => (
+                        <Stat key={s.label} label={s.label} value={s.value} />
+                      ))}
+                    </div>
+                  ) : null}
+                  {speaker.quote ? (
+                    <>
+                      <div className="mt-8 hairline" />
+                      <blockquote className="mt-8 font-display text-2xl leading-snug">
+                        &ldquo;{speaker.quote}&rdquo;
+                      </blockquote>
+                    </>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {count > 1 ? (
+          <div className="mt-10 flex items-center justify-center gap-3">
+            {list.map((speaker, index) => (
+              <button
+                key={`dot-${speaker.name}-${index}`}
+                type="button"
+                aria-label={`Show ${speaker.name}`}
+                aria-current={index === active}
+                onClick={() => setActive(index)}
+                className={`h-2.5 rounded-full transition-all duration-300 ${
+                  index === active
+                    ? "w-8 bg-[var(--gold)]"
+                    : "w-2.5 bg-border hover:bg-[var(--gold)]/50"
+                }`}
+              />
+            ))}
+          </div>
+        ) : null}
+
+        <p className="sr-only" aria-live="polite">
+          {current.name}
+        </p>
       </div>
     </section>
   );
@@ -749,8 +966,8 @@ function FAQ() {
       a: "You'll get a Zoom link on email and WhatsApp after you register. Join five minutes early to get settled.",
     },
     {
-      q: "Is GELD a SEBI Registered Advisor?",
-      a: "Yes. GELD is a SEBI Registered Investment Advisor. This webinar is educational and does not constitute investment advice.",
+      q: "Is this investment advice?",
+      a: "No. This webinar is educational only and does not constitute investment advice. Markets involve risk; always do your own due diligence.",
     },
   ];
   return (
@@ -797,12 +1014,12 @@ function FinalCTA({
   countdown: { d: number; h: number; m: number; s: number };
   registerUrl: string;
 }) {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState<RegisterFieldErrors>({});
   const [formError, setFormError] = useState("");
-  const [ok, setOk] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const inputClass =
@@ -853,8 +1070,10 @@ function FinalCTA({
         return;
       }
 
-      setOk(true);
-      window.open(registerUrl, "_blank", "noopener,noreferrer");
+      if (registerUrl) {
+        window.open(registerUrl, "_blank", "noopener,noreferrer");
+      }
+      router.push("/thank-you");
     } catch {
       setFormError("Network error. Please try again.");
     } finally {
@@ -864,7 +1083,7 @@ function FinalCTA({
 
   return (
     <section className="py-14 sm:py-24 md:py-32">
-      <div className="container-x">
+      <div id="register-form" className="container-x scroll-mt-24 md:scroll-mt-28">
         <div
           className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border p-6 sm:p-10 md:p-16"
           style={{
@@ -894,132 +1113,115 @@ function FinalCTA({
             </div>
 
             <form onSubmit={onSubmit} className="surface-card p-5 sm:p-6 md:p-8" noValidate>
-              {ok ? (
-                <div className="text-center py-8">
-                  <div
-                    className="mx-auto w-14 h-14 rounded-full grid place-items-center"
-                    style={{ background: "var(--gradient-gold)" }}
-                  >
-                    <CheckCircle2 className="w-7 h-7 text-primary-foreground" />
-                  </div>
-                  <h3 className="mt-5 font-display text-2xl">You&apos;re in.</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Complete Zoom registration in the new tab to finish.
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <label
-                    htmlFor="register-name"
-                    className="block text-xs uppercase tracking-widest text-muted-foreground"
-                  >
-                    Full name
-                  </label>
-                  <input
-                    id="register-name"
-                    name="name"
-                    autoComplete="name"
-                    value={name}
-                    onChange={(e) => setField("name", e.target.value, setName)}
-                    onBlur={() =>
-                      setErrors((prev) => ({
-                        ...prev,
-                        name: validateRegisterField("name", name, { requireFilled: true }),
-                      }))
-                    }
-                    maxLength={REGISTER_LIMITS.MAX_NAME}
-                    className={errors.name ? errorInputClass : inputClass}
-                    placeholder="Your name"
-                    aria-invalid={Boolean(errors.name)}
-                  />
-                  {errors.name ? (
-                    <p className="mt-1.5 text-xs text-red-400">{errors.name}</p>
-                  ) : null}
+              <label
+                htmlFor="register-name"
+                className="block text-xs uppercase tracking-widest text-muted-foreground"
+              >
+                Full name
+              </label>
+              <input
+                id="register-name"
+                name="name"
+                autoComplete="name"
+                value={name}
+                onChange={(e) => setField("name", e.target.value, setName)}
+                onBlur={() =>
+                  setErrors((prev) => ({
+                    ...prev,
+                    name: validateRegisterField("name", name, { requireFilled: true }),
+                  }))
+                }
+                maxLength={REGISTER_LIMITS.MAX_NAME}
+                className={errors.name ? errorInputClass : inputClass}
+                placeholder="Your name"
+                aria-invalid={Boolean(errors.name)}
+              />
+              {errors.name ? (
+                <p className="mt-1.5 text-xs text-red-400">{errors.name}</p>
+              ) : null}
 
-                  <label
-                    htmlFor="register-email"
-                    className="block text-xs uppercase tracking-widest text-muted-foreground mt-4"
-                  >
-                    Email
-                  </label>
-                  <input
-                    id="register-email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    value={email}
-                    onChange={(e) => setField("email", e.target.value, setEmail)}
-                    onBlur={() =>
-                      setErrors((prev) => ({
-                        ...prev,
-                        email: validateRegisterField("email", email, {
-                          requireFilled: true,
-                        }),
-                      }))
-                    }
-                    maxLength={REGISTER_LIMITS.MAX_EMAIL}
-                    className={errors.email ? errorInputClass : inputClass}
-                    placeholder="you@example.com"
-                    aria-invalid={Boolean(errors.email)}
-                  />
-                  {errors.email ? (
-                    <p className="mt-1.5 text-xs text-red-400">{errors.email}</p>
-                  ) : null}
+              <label
+                htmlFor="register-email"
+                className="block text-xs uppercase tracking-widest text-muted-foreground mt-4"
+              >
+                Email
+              </label>
+              <input
+                id="register-email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setField("email", e.target.value, setEmail)}
+                onBlur={() =>
+                  setErrors((prev) => ({
+                    ...prev,
+                    email: validateRegisterField("email", email, {
+                      requireFilled: true,
+                    }),
+                  }))
+                }
+                maxLength={REGISTER_LIMITS.MAX_EMAIL}
+                className={errors.email ? errorInputClass : inputClass}
+                placeholder="you@example.com"
+                aria-invalid={Boolean(errors.email)}
+              />
+              {errors.email ? (
+                <p className="mt-1.5 text-xs text-red-400">{errors.email}</p>
+              ) : null}
 
-                  <label
-                    htmlFor="register-phone"
-                    className="block text-xs uppercase tracking-widest text-muted-foreground mt-4"
-                  >
-                    Contact number
-                  </label>
-                  <input
-                    id="register-phone"
-                    name="phone"
-                    type="tel"
-                    inputMode="numeric"
-                    autoComplete="tel"
-                    value={phone}
-                    onChange={(e) => {
-                      const digits = getPhoneDigits(e.target.value).slice(
-                        0,
-                        REGISTER_LIMITS.MAX_PHONE_DIGITS
-                      );
-                      setField("phone", digits, setPhone);
-                    }}
-                    onBlur={() =>
-                      setErrors((prev) => ({
-                        ...prev,
-                        phone: validateRegisterField("phone", phone, {
-                          requireFilled: true,
-                        }),
-                      }))
-                    }
-                    maxLength={REGISTER_LIMITS.MAX_PHONE_DIGITS}
-                    className={errors.phone ? errorInputClass : inputClass}
-                    placeholder="10 digit mobile number"
-                    aria-invalid={Boolean(errors.phone)}
-                  />
-                  {errors.phone ? (
-                    <p className="mt-1.5 text-xs text-red-400">{errors.phone}</p>
-                  ) : null}
+              <label
+                htmlFor="register-phone"
+                className="block text-xs uppercase tracking-widest text-muted-foreground mt-4"
+              >
+                Contact number
+              </label>
+              <input
+                id="register-phone"
+                name="phone"
+                type="tel"
+                inputMode="numeric"
+                autoComplete="tel"
+                value={phone}
+                onChange={(e) => {
+                  const digits = getPhoneDigits(e.target.value).slice(
+                    0,
+                    REGISTER_LIMITS.MAX_PHONE_DIGITS
+                  );
+                  setField("phone", digits, setPhone);
+                }}
+                onBlur={() =>
+                  setErrors((prev) => ({
+                    ...prev,
+                    phone: validateRegisterField("phone", phone, {
+                      requireFilled: true,
+                    }),
+                  }))
+                }
+                maxLength={REGISTER_LIMITS.MAX_PHONE_DIGITS}
+                className={errors.phone ? errorInputClass : inputClass}
+                placeholder="10 digit mobile number"
+                aria-invalid={Boolean(errors.phone)}
+              />
+              {errors.phone ? (
+                <p className="mt-1.5 text-xs text-red-400">{errors.phone}</p>
+              ) : null}
 
-                  {formError ? (
-                    <p className="mt-4 text-sm text-red-400 text-center">{formError}</p>
-                  ) : null}
+              {formError ? (
+                <p className="mt-4 text-sm text-red-400 text-center">{formError}</p>
+              ) : null}
 
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="btn-gold w-full mt-6 disabled:opacity-60 disabled:pointer-events-none"
-                  >
-                    {submitting ? "Submitting…" : "Reserve my seat"}{" "}
-                    {!submitting ? <ArrowRight className="w-4 h-4" /> : null}
-                  </button>
-                  <p className="mt-3 text-[11px] text-muted-foreground text-center">
-                    By registering you agree to receive session updates from GELD Wealth.
-                  </p>
-                </>
-              )}
+              <button
+                type="submit"
+                disabled={submitting}
+                className="btn-gold w-full mt-6 disabled:opacity-60 disabled:pointer-events-none"
+              >
+                {submitting ? "Submitting…" : "Reserve my seat"}{" "}
+                {!submitting ? <ArrowRight className="w-4 h-4" /> : null}
+              </button>
+              <p className="mt-3 text-[11px] text-muted-foreground text-center">
+                By registering you agree to receive session updates from GELD Wealth.
+              </p>
             </form>
           </div>
         </div>
@@ -1052,7 +1254,7 @@ function Footer() {
             />
           </NavLink>
           <p className="mt-4 text-sm text-muted-foreground max-w-md">
-            SEBI Registered Investment Advisor. This webinar is for educational purposes only.
+            37+ years of market experience. This webinar is for educational purposes only.
             Views expressed do not constitute investment advice. Securities market investments
             are subject to market risks.
           </p>
@@ -1062,12 +1264,12 @@ function Footer() {
           <ul className="mt-4 space-y-2 text-sm">
             <li>
               <NavLink href="#learn" className="hover:text-[var(--gold)]">
-                What you&apos;ll learn
+                Webinars
               </NavLink>
             </li>
             <li>
               <NavLink href="#speaker" className="hover:text-[var(--gold)]">
-                Speaker
+                Speakers
               </NavLink>
             </li>
             <li>

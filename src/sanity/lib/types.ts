@@ -4,6 +4,7 @@ export type LandingTopic = {
   title: string;
   theme?: string;
   audience?: string;
+  speaker?: string;
   points: string[];
   icon?: string;
 };
@@ -35,9 +36,18 @@ export type LandingWebinarContent = {
   registerUrl: string;
   topicsIntro: string;
   topics: LandingTopic[];
-  speaker: LandingSpeaker;
+  speakers: LandingSpeaker[];
   marqueeItems: string[];
   audienceItems: string[];
+};
+
+export type LandingSpeakerDoc = {
+  name?: string | null;
+  role?: string | null;
+  bio?: string | null;
+  quote?: string | null;
+  image?: (SanityImageSource & { alt?: string | null }) | null;
+  stats?: Array<{ label?: string | null; value?: string | null }> | null;
 };
 
 /** Raw Sanity document shape before URL mapping */
@@ -55,17 +65,13 @@ export type LandingWebinarDoc = {
     title?: string | null;
     theme?: string | null;
     audience?: string | null;
+    speaker?: string | null;
     points?: string[] | null;
     icon?: string | null;
   }> | null;
-  speaker?: {
-    name?: string | null;
-    role?: string | null;
-    bio?: string | null;
-    quote?: string | null;
-    image?: (SanityImageSource & { alt?: string | null }) | null;
-    stats?: Array<{ label?: string | null; value?: string | null }> | null;
-  } | null;
+  speakers?: LandingSpeakerDoc[] | null;
+  /** @deprecated use speakers[] */
+  speaker?: LandingSpeakerDoc | null;
   marqueeItems?: string[] | null;
   audienceItems?: string[] | null;
 };

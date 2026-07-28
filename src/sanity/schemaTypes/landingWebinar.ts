@@ -1,5 +1,62 @@
 import { defineField, defineType } from "sanity";
 
+const speakerFields = [
+  defineField({
+    name: "name",
+    title: "Name",
+    type: "string",
+    validation: (rule) => rule.required(),
+  }),
+  defineField({
+    name: "role",
+    title: "Role / label",
+    type: "string",
+    description: 'e.g. "Featured speaker" or "Portfolio specialist"',
+  }),
+  defineField({
+    name: "bio",
+    title: "Bio / intro",
+    type: "text",
+    rows: 4,
+  }),
+  defineField({
+    name: "quote",
+    title: "Quote",
+    type: "string",
+  }),
+  defineField({
+    name: "image",
+    title: "Photo",
+    type: "image",
+    options: { hotspot: true },
+    fields: [
+      defineField({
+        name: "alt",
+        title: "Alternative text",
+        type: "string",
+      }),
+    ],
+  }),
+  defineField({
+    name: "stats",
+    title: "Stats",
+    type: "array",
+    of: [
+      {
+        type: "object",
+        name: "stat",
+        fields: [
+          defineField({ name: "label", title: "Label", type: "string" }),
+          defineField({ name: "value", title: "Value", type: "string" }),
+        ],
+        preview: {
+          select: { title: "value", subtitle: "label" },
+        },
+      },
+    ],
+  }),
+];
+
 /**
  * Landing-page webinar content for lp.geldwealth.com.
  * Separate from the main site `webinar` singleton (poster only).
@@ -22,7 +79,7 @@ export const landingWebinar = defineType({
       name: "heroEyebrow",
       title: "Hero eyebrow",
       type: "string",
-      description: 'e.g. "Live weekly webinar · SEBI Registered"',
+      description: 'e.g. "Live weekly webinar · 37+ years market experience"',
     }),
     defineField({
       name: "heroHeadline",
@@ -80,19 +137,19 @@ export const landingWebinar = defineType({
     }),
     defineField({
       name: "topicsIntro",
-      title: "Topics section intro",
+      title: "Webinars section intro",
       type: "text",
       rows: 2,
     }),
     defineField({
       name: "topics",
-      title: "Topics covered",
+      title: "Webinars",
       type: "array",
       of: [
         {
           type: "object",
           name: "topic",
-          title: "Topic",
+          title: "Webinar",
           fields: [
             defineField({
               name: "title",
@@ -110,6 +167,12 @@ export const landingWebinar = defineType({
               name: "audience",
               title: "Who it's for",
               type: "string",
+            }),
+            defineField({
+              name: "speaker",
+              title: "Speaker",
+              type: "string",
+              description: 'e.g. "Chandan Taparia"',
             }),
             defineField({
               name: "points",
@@ -139,69 +202,34 @@ export const landingWebinar = defineType({
           },
         },
       ],
+      validation: (rule) => rule.min(1).max(3),
+    }),
+    defineField({
+      name: "speakers",
+      title: "Featured speakers",
+      description:
+        "Add one or more speakers. The site shows them in a fade carousel.",
+      type: "array",
+      of: [
+        {
+          type: "object",
+          name: "speakerItem",
+          title: "Speaker",
+          fields: speakerFields,
+          preview: {
+            select: { title: "name", subtitle: "role", media: "image" },
+          },
+        },
+      ],
       validation: (rule) => rule.min(1),
     }),
     defineField({
       name: "speaker",
-      title: "Featured speaker",
+      title: "Legacy featured speaker",
+      description: "Deprecated. Use Featured speakers above. Kept for old content.",
       type: "object",
-      fields: [
-        defineField({
-          name: "name",
-          title: "Name",
-          type: "string",
-          validation: (rule) => rule.required(),
-        }),
-        defineField({
-          name: "role",
-          title: "Role / label",
-          type: "string",
-          description: 'e.g. "Featured speaker"',
-        }),
-        defineField({
-          name: "bio",
-          title: "Bio",
-          type: "text",
-          rows: 4,
-        }),
-        defineField({
-          name: "quote",
-          title: "Quote",
-          type: "string",
-        }),
-        defineField({
-          name: "image",
-          title: "Photo",
-          type: "image",
-          options: { hotspot: true },
-          fields: [
-            defineField({
-              name: "alt",
-              title: "Alternative text",
-              type: "string",
-            }),
-          ],
-          validation: (rule) => rule.required(),
-        }),
-        defineField({
-          name: "stats",
-          title: "Stats",
-          type: "array",
-          of: [
-            {
-              type: "object",
-              name: "stat",
-              fields: [
-                defineField({ name: "label", title: "Label", type: "string" }),
-                defineField({ name: "value", title: "Value", type: "string" }),
-              ],
-              preview: {
-                select: { title: "value", subtitle: "label" },
-              },
-            },
-          ],
-        }),
-      ],
+      hidden: true,
+      fields: speakerFields,
     }),
     defineField({
       name: "marqueeItems",

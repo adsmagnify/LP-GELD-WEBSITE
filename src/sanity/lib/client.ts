@@ -6,5 +6,6 @@ export const client = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: true,
+  // Skip CDN so Studio publishes show on the site right away
+  useCdn: false,
 });

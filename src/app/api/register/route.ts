@@ -11,6 +11,7 @@ interface RegisterRequestBody {
   name?: string;
   email?: string;
   phone?: string;
+  interestedTopic?: string;
 }
 
 function escapeHtml(value: string): string {
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
   const name = body.name?.trim() || "";
   const email = body.email?.trim() || "";
   const phone = body.phone?.trim() || "";
+  const interestedTopic = body.interestedTopic?.trim().slice(0, 200) || "";
 
   const fieldErrors = validateRegisterFields({ name, email, phone });
   if (Object.keys(fieldErrors).length > 0) {
@@ -84,20 +86,36 @@ export async function POST(request: Request) {
         from: smtpUser,
         to: recipient,
       },
-      subject: `Webinar registration, ${name}`,
+      subject: interestedTopic
+        ? `${interestedTopic} | Webinar interest from ${name}`
+        : `Webinar registration from ${name}`,
       text: [
-        "New webinar registration from the landing page.",
+        interestedTopic
+          ? `New interest in webinar: ${interestedTopic}`
+          : "New webinar registration from the landing page.",
         "",
         `Name: ${name}`,
         `Email: ${email}`,
         `Contact Number: ${phone}`,
+        interestedTopic ? `Webinar: ${interestedTopic}` : null,
         `Source: webinar-landing`,
-      ].join("\n"),
+      ]
+        .filter(Boolean)
+        .join("\n"),
       html: `
-        <p><strong>New webinar registration</strong> (landing page)</p>
+        <p><strong>${
+          interestedTopic
+            ? `New interest: ${escapeHtml(interestedTopic)}`
+            : "New webinar registration"
+        }</strong> (landing page)</p>
         <p><strong>Name:</strong> ${escapeHtml(name)}</p>
         <p><strong>Email:</strong> ${escapeHtml(email)}</p>
         <p><strong>Contact Number:</strong> ${escapeHtml(phone)}</p>
+        ${
+          interestedTopic
+            ? `<p><strong>Webinar:</strong> ${escapeHtml(interestedTopic)}</p>`
+            : ""
+        }
         <p><strong>Source:</strong> webinar-landing</p>
       `,
     });

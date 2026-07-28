@@ -1,4 +1,8 @@
-export const LANDING_WEBINAR_QUERY = `*[_id == "landingWebinar"][0]{
+export const LANDING_WEBINAR_QUERY = `coalesce(
+  *[_id == "landingWebinar"][0],
+  *[_id == "drafts.landingWebinar"][0],
+  *[_type == "landingWebinar" && !(_id in path("drafts.**"))] | order(_updatedAt desc)[0]
+){
   heroEyebrow,
   heroHeadline,
   heroHighlight,
@@ -17,8 +21,22 @@ export const LANDING_WEBINAR_QUERY = `*[_id == "landingWebinar"][0]{
     title,
     theme,
     audience,
+    speaker,
     points,
     icon
+  },
+  speakers[]{
+    name,
+    role,
+    bio,
+    quote,
+    image{
+      asset->,
+      alt,
+      hotspot,
+      crop
+    },
+    stats[]{ label, value }
   },
   speaker{
     name,
