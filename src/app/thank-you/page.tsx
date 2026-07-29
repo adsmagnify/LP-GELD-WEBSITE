@@ -3,8 +3,12 @@ import type { Metadata } from "next";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Thank you | GELD Wealth Webinar",
+  title: "Thank you",
   description: "Thanks for showing interest in the GELD Wealth webinar.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 const LOGO_MARK_SRC = "/new_geld_g_logo.png";

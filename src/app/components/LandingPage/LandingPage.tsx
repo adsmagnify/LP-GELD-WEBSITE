@@ -86,17 +86,47 @@ function useCountdown(target: Date) {
   return { d, h, m, s };
 }
 
-export default function LandingPage({ data }: { data: LandingWebinarContent }) {
+export default function LandingPage({
+  data,
+  initialSection,
+}: {
+  data: LandingWebinarContent;
+  initialSection?: string;
+}) {
   const target = useMemo(() => new Date(data.eventDateTime), [data.eventDateTime]);
   const { d, h, m, s } = useCountdown(target);
   const countdown = { d, h, m, s };
 
   useEffect(() => {
-    const hash = window.location.hash;
-    if (!hash) return;
-    const t = window.setTimeout(() => scrollToHash(hash), 80);
+    const nav = performance.getEntriesByType("navigation")[0] as
+      | PerformanceNavigationTiming
+      | undefined;
+    const isReload = nav?.type === "reload";
+
+    // Refresh always returns to the top of the first page
+    if (isReload) {
+      if ("scrollRestoration" in history) {
+        history.scrollRestoration = "manual";
+      }
+      if (window.location.hash || window.location.search) {
+        history.replaceState(null, "", "/");
+      }
+      window.scrollTo(0, 0);
+      const t = window.setTimeout(() => window.scrollTo(0, 0), 0);
+      return () => window.clearTimeout(t);
+    }
+
+    const fromQuery = initialSection?.replace(/^#/, "").trim();
+    const fromHash = window.location.hash.replace(/^#/, "").trim();
+    const section = fromQuery || fromHash;
+    if (!section) return;
+
+    const t = window.setTimeout(() => {
+      scrollToHash(`#${section}`);
+      history.replaceState(null, "", `#${section}`);
+    }, 120);
     return () => window.clearTimeout(t);
-  }, []);
+  }, [initialSection]);
 
   return (
     <div style={{ background: "var(--gradient-hero)" }} className="min-h-screen">
